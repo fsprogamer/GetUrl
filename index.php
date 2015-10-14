@@ -17,7 +17,7 @@ $table_alias = '<table style="width: 99%">
 
 /////////////////////////////////////////////////////////////
 /*
-$url = 'http://rabota-na-domy.ru';
+$url = 'http://rabota-na-domy.ru/OpenBatches/Index/';
 $data = array('username' => 'SFrolova', 
               'password' => 'xqsmvHTb', 
               'rememberMe'=> 'false',
@@ -35,7 +35,7 @@ curl_close($myCurl);
 
 echo "Ответ на Ваш запрос: ".$response;
 */
-
+/*
 
 $url = 'http://yandex.ru';
 $proxy = 'srv-isa.akado.local:8080';
@@ -52,9 +52,31 @@ $curl_scraped_page = curl_exec($ch);
 curl_close($ch);
 
 echo $curl_scraped_page;
+*/
 
-/*
 $url = 'http://rabota-na-domy.ru';
+
+$info = file_get_contents($url);
+
+$cookies = array();
+foreach ($http_response_header as $hdr) {
+    if (preg_match('/^Set-Cookie:\s*([^;]+)/', $hdr, $matches)) {
+        parse_str($matches[1], $tmp);
+        $cookies += $tmp;
+    }
+}
+print_r($cookies);
+
+$cookies_str = 'Cookie: ';
+foreach ($cookies as $cook =>$value ) {
+  $cookies_str .=  $cook.'='.$value.';';
+} 
+
+$cookies_str .= ' _ym_visorc_12394123=w';
+print_r($cookies_str);
+//echo $info;
+
+
 $data = array('username' => 'SFrolova', 
               'password' => 'xqsmvHTb', 
               'rememberMe'=> 'false',
@@ -63,16 +85,17 @@ $data = array('username' => 'SFrolova',
 // use key 'http' even if you send the request to https://...
 $options = array(
     'http' => array(
-        'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+        'header'  => "Content-type: application/x-www-form-urlencoded; charset=UTF-8; ".$cookies_str,
+        'request_fulluri' => true,            
         'method'  => 'POST',
         'content' => http_build_query($data),
     ),
 );
 $context  = stream_context_create($options);
-$result = file_get_contents($url, false, $context);
+$result = file_get_contents($url/*.'/Account/AjaxLogOn'*/, false, $context);
 
 echo $result;
-*/
+
 /////////////////////////////////////////////////////////////
 //&username=SFrolova&password=xqsmvHTb&rememberMe=false&X-Requested-With=XMLHttpRequest
 /*
@@ -95,10 +118,9 @@ $result = file_get_contents($url, false, stream_context_create(array(
 echo $result;
 */
 /////////////////////////////////////////////////////////////
+
+//$auth = base64_encode('SVFrolov:Pr0gamer');
 /*
-$auth = base64_encode('SVFrolov:Pr0gamer');
-
-
 $url = 'http://rabota-na-domy.ru';
 $params = array(
     'username' => 'SFrolova', 
@@ -110,11 +132,11 @@ $params = array(
 $result = file_get_contents($url, false, stream_context_create(array(
     'http' => array(
         'method'  => 'POST',
-        //'header'  => 'Content-type: application/x-www-form-urlencoded',
+        'header'  => 'Content-type: application/x-www-form-urlencoded',
         'content' => http_build_query($params),
-        'proxy' => 'tcp://srv-isa.akado.local:8080',
+        //'proxy' => 'tcp://srv-isa.akado.local:8080',
         'request_fulluri' => true,
-        'header' => "Proxy-Authorization: Basic $auth",        
+        //'header' => "Proxy-Authorization: Basic $auth",        
     )
 )));
 
