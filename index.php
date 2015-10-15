@@ -15,48 +15,13 @@ $table_alias = '<table style="width: 99%">
     </thead>
     <tbody>';
 
-/////////////////////////////////////////////////////////////
+
+
+$url = 'http://localhost/testdrive/index.php?r=site/login';//'http://rabota-na-domy.ru';
+
 /*
-$url = 'http://rabota-na-domy.ru/OpenBatches/Index/';
-$data = array('username' => 'SFrolova', 
-              'password' => 'xqsmvHTb', 
-              'rememberMe'=> 'false',
-              'X-Requested-With' => 'XMLHttpRequest');
-
-$myCurl = curl_init();
-curl_setopt_array($myCurl, array(
-    CURLOPT_URL => $url,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => http_build_query($data)
-));
-$response = curl_exec($myCurl);
-curl_close($myCurl);
-
-echo "Ответ на Ваш запрос: ".$response;
-*/
-/*
-
-$url = 'http://yandex.ru';
-$proxy = 'srv-isa.akado.local:8080';
-$proxyauth = 'SVFrolov:Pr0gamer';
-
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL,$url);
-curl_setopt($ch, CURLOPT_PROXY, $proxy);
-curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyauth);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_HEADER, 1);
-$curl_scraped_page = curl_exec($ch);
-curl_close($ch);
-
-echo $curl_scraped_page;
-*/
-
-$url = 'http://rabota-na-domy.ru';
-
 $info = file_get_contents($url);
+echo $info;
 
 $cookies = array();
 foreach ($http_response_header as $hdr) {
@@ -72,15 +37,12 @@ foreach ($cookies as $cook =>$value ) {
   $cookies_str .=  $cook.'='.$value.';';
 } 
 
-$cookies_str .= ' _ym_visorc_12394123=w';
+//$cookies_str .= ' _ym_visorc_12394123=w';
 print_r($cookies_str);
-//echo $info;
 
-
-$data = array('username' => 'SFrolova', 
-              'password' => 'xqsmvHTb', 
-              'rememberMe'=> 'false',
-              'X-Requested-With' => 'XMLHttpRequest');
+$data = array('username' => 'admin', 
+              'password' => 'admin' 
+);
 
 // use key 'http' even if you send the request to https://...
 $options = array(
@@ -92,67 +54,49 @@ $options = array(
     ),
 );
 $context  = stream_context_create($options);
-$result = file_get_contents($url/*.'/Account/AjaxLogOn'*/, false, $context);
+$result = file_get_contents($url, false, $context);
 
 echo $result;
 
-/////////////////////////////////////////////////////////////
-//&username=SFrolova&password=xqsmvHTb&rememberMe=false&X-Requested-With=XMLHttpRequest
-/*
-$url = 'http://rabota-na-domy.ru';
-$params = array(
-    'username' => 'SFrolova', 
-    'password' => 'xqsmvHTb', 
-    'rememberMe'=> 'false',
-    'X-Requested-With' => 'XMLHttpRequest'
-);
-$result = file_get_contents($url, false, stream_context_create(array(
-    'http' => array(
-        'method'  => 'POST',
-        'header'  => 'Content-type: application/x-www-form-urlencoded',
-        'content' => http_build_query($params),
-        
-    )
-)));
-
-echo $result;
 */
-/////////////////////////////////////////////////////////////
 
-//$auth = base64_encode('SVFrolov:Pr0gamer');
-/*
-$url = 'http://rabota-na-domy.ru';
-$params = array(
-    'username' => 'SFrolova', 
-    'password' => 'xqsmvHTb', 
-    'rememberMe'=> 'false',
-    'X-Requested-With' => 'XMLHttpRequest'
-);
 
-$result = file_get_contents($url, false, stream_context_create(array(
-    'http' => array(
-        'method'  => 'POST',
-        'header'  => 'Content-type: application/x-www-form-urlencoded',
-        'content' => http_build_query($params),
-        //'proxy' => 'tcp://srv-isa.akado.local:8080',
-        'request_fulluri' => true,
-        //'header' => "Proxy-Authorization: Basic $auth",        
-    )
-)));
-
-echo $result;
-*/
-/*
-$info = file_get_contents("http://rabota-na-domy.ru");
-
-print_r($info);
-*/
-/*
-$info = file_get_contents("http://rabota-na-domy.ru/OpenBatches/Index/");
-
-if (($pos = strpos($info, $table_alias)) !== false) {
- $rest = substr($info, $pos); 
+//create array of data to be posted
+$post_data['firstName'] = 'Name';
+$post_data['action'] = 'Register';
+ 
+//traverse array and prepare data for posting (key1=value1)
+foreach ( $post_data as $key => $value) {
+    $post_items[] = $key . '=' . $value;
 }
  
-print_r($rest);
-*/
+//create the final string to be posted using implode()
+$post_string = implode ('&', $post_items);
+ 
+//create cURL connection
+$curl_connection = 
+  curl_init('$url');
+ 
+//set options
+curl_setopt($curl_connection, CURLOPT_CONNECTTIMEOUT, 30);
+curl_setopt($curl_connection, CURLOPT_USERAGENT, 
+  "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)");
+curl_setopt($curl_connection, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl_connection, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($curl_connection, CURLOPT_FOLLOWLOCATION, 1);
+ 
+//set data to be posted
+curl_setopt($curl_connection, CURLOPT_POSTFIELDS, $post_string);
+ 
+//perform our request
+$result = curl_exec($curl_connection);
+ 
+//show information regarding the request
+print_r(curl_getinfo($curl_connection));
+echo curl_errno($curl_connection) . '-' . 
+                curl_error($curl_connection);
+ 
+//close the connection
+curl_close($curl_connection);
+ 
+
